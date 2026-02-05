@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Hunter | Deepfake Detection</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">AI VOICE HUNTER</div>
+            <p class="subtitle">Advanced Neural Analysis for Synthetic Speech Detection</p>
+        </header>
+
+        <main>
+            <div class="upload-zone" id="dropArea">
+                <input type="file" id="fileInput" accept="audio/*" hidden>
+                <div class="icon">🎙️</div>
+                <h3>Drag & Drop or Click to Upload</h3>
+                <p>Supports MP3, WAV (Max 10MB)</p>
+            </div>
+
+            <div class="settings">
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                    <option value="ta">Tamil</option>
+                    <option value="te">Telugu</option>
+                    <option value="ml">Malayalam</option>
+                </select>
+                <input type="password" id="apiKey" placeholder="Enter API Key (Default: eternity)" value="eternity">
+            </div>
+
+            <button id="detectBtn" disabled>ANALYZE AUDIO</button>
+
+            <div class="loader" id="loader" hidden>
+                <div class="spinner"></div>
+                <p>Extracting Phase Features & Running BiLSTM...</p>
+            </div>
+
+            <div class="result-card" id="resultCard" hidden>
+                <div class="verdict" id="verdict">HUMAN</div>
+                <div class="confidence-bar">
+                    <div class="fill" id="confidenceFill"></div>
+                </div>
+                <div class="meta" id="confidenceText">Confidence: 0.0%</div>
+
+                <div class="explanation">
+                    <h4>Analysis Report</h4>
+                    <div class="metric">
+                        <span>Spectral Entropy</span>
+                        <span id="expEntropy" class="val">-</span>
+                    </div>
+                    <div class="metric">
+                        <span>Temporal Consistency</span>
+                        <span id="expTemp" class="val">-</span>
+                    </div>
+                    <div class="metric">
+                        <span>Phase Anomalies</span>
+                        <span id="expPhase" class="val">-</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+# Exclude build and environment files
+venv/
+__pycache__/
+*.pyc
+.git/
+.env
+
+# Exclude training data and intermediate outputs
+data/
+output/
+dataset/
+
+# Exclude checkpoint models (save space, keep only production)
+models/checkpoints/
+models/*.pth
+models/*.bin
+models/*.safetensors
+
+# BUT ensure the production directory is included
+# (This is handled by the above rules, as models/production/ is not explicitly excluded)
+
+# Other local files
+.DS_Store
+*.db
+README.md
+TRAINING.md
+walkthrough.md
+implementation_plan.md
+task.md
+scripts/download_indian_test_manual.py
+scripts/inspect_tar.py

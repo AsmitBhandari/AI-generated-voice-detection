@@ -1,0 +1,26 @@
+# Environment
+venv/
+.env
+__pycache__/
+*.pyc
+
+# Data & Models (Crucial: Wav2Vec2 models are GBs)
+data/
+output/
+dataset/
+models/checkpoints/
+models/production/
+*.pth
+*.safetensors
+*.bin
+
+# Database
+*.db
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+dataset_generation_log.txt
