@@ -8,14 +8,10 @@ from pathlib import Path
 from tqdm import tqdm
 import numpy as np
 
-MODEL_PATH = Path("models/production/model_v1.1.0")
+MODEL_PATH = "asmitbhandari/ai-voice-detection-multilingual"
 TEST_ROOT = Path("output/test")
 
 def verify_model():
-    if not MODEL_PATH.exists():
-        print(f"Model not found at {MODEL_PATH}")
-        return
-
     print(f"Loading model from {MODEL_PATH}...")
     feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(MODEL_PATH)
     model = Wav2Vec2ForSequenceClassification.from_pretrained(MODEL_PATH)

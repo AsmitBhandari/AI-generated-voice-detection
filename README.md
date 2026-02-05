@@ -15,9 +15,10 @@ An advanced AI system designed to distinguish between **AI-generated** and **Hum
 - Python 3.10+
 - FFmpeg (for audio processing)
 
-### 2. Installation
+### 2. Run Verification
+The system automatically pulls the model from Hugging Face Hub (no manual download needed).
 ```bash
-pip install -r requirements.txt
+python ml/verify_multilingual.py
 ```
 
 ### 3. Run the API
@@ -74,4 +75,3 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8100/detect-voice" `
 
 
 ---
-

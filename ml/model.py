@@ -11,10 +11,9 @@ class ModelWrapper:
         if model_path:
             self.load(model_path)
         else:
-            # Fallback to base model if no path provided (evaluation safety)
-            model_name = "facebook/wav2vec2-base"
-            self.feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(model_name)
-            self.model = Wav2Vec2ForSequenceClassification.from_pretrained(model_name, num_labels=2).to(self.device)
+            # Default to our production model on Hugging Face
+            print("No path provided. loading from Hugging Face Hub...")
+            self.load("asmitbhandari/ai-voice-detection-multilingual")
         
         self.model.eval()
 
