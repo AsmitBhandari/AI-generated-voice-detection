@@ -14,24 +14,12 @@ def test_deployment(base_url):
         print(f"Health check failed: {e}")
         return
 
-    # 2. Prediction Test (Using Hackathon Schema)
-    detect_url = f"{base_url}/predict"
+    # 2. Prediction Test (Using URL to avoid file uploads)
+    detect_url = f"{base_url}/detect-voice"
     payload = {
-        "language": "en",
-        "audio_format": "mp3",
-        "audio_base64": "" # Will be filled below
+        "audio_url": "https://www.w3schools.com/html/horse.mp3",
+        "language": "en"
     }
-    
-    # Get actual base64 of a small sample
-    import base64
-    try:
-        # Use a stable public URL etc or just a dummy small file
-        # For the test script, we'll download one and convert
-        res = requests.get("https://www.w3schools.com/html/horse.mp3")
-        payload["audio_base64"] = base64.b64encode(res.content).decode("utf-8")
-    except:
-        print("Failed to prepare test audio.")
-        return
     headers = {
         "X-API-Key": "eternity",
         "Content-Type": "application/json"

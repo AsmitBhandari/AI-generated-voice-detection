@@ -40,9 +40,10 @@ async def verify_api_key(x_api_key: str = Header(...)):
 
 # --- Models ---
 class VoiceRequest(BaseModel):
-    language: str
-    audio_format: str
-    audio_base64: str
+    audio_base64: Optional[str] = None
+    audio_url: Optional[str] = None
+    audio_format: Optional[str] = "wav" # For Hackathon UI alignment
+    language: Optional[str] = "en"
 
 class Explainability(BaseModel):
     spectral_entropy: float
@@ -61,15 +62,13 @@ class ErrorResponse(BaseModel):
 MODEL_VERSION = os.getenv("MODEL_VERSION", "v1.1.0")
 MODEL_PATH = f"models/production/model_{MODEL_VERSION}"
 
-# For hackathon integration, we prefer loading from HF if production path doesn't exist locally
-# This ensures it works on Railway without manual folder uploads
-local_model_exists = os.path.exists(MODEL_PATH)
-if local_model_exists:
+if os.path.exists(MODEL_PATH):
     print(f"Loading local production model: {MODEL_PATH}")
     model_wrapper = ModelWrapper(model_path=MODEL_PATH)
 else:
-    print(f"Production model {MODEL_PATH} not found locally. Loading from Hugging Face Hub...")
-    model_wrapper = ModelWrapper() # Default loads from HF target established earlier
+    print(f"Warning: Local model {MODEL_PATH} not found. Loading from Hugging Face Hub...")
+    model_wrapper = ModelWrapper() 
+
 # --- Audio Download Helper ---
 def download_audio_from_url(url: str, timeout: int = 10) -> bytes:
     """
@@ -215,36 +214,55 @@ def generate_explanation(prediction: str, spectral_entropy: float, temporal_cons
 
 # --- Routes ---
 @app.post("/predict")
-@app.post("/detect-voice") # Keep as alias for backward compatibility
-async def predict(
+@app.post("/detect-voice")
+async def detect_voice(
     req: VoiceRequest,
     request: Request,
     x_api_key: str = Header(...),
     db: Session = Depends(get_db)
 ):
     """
-    Hackathon Test Endpoint compatible prediction.
-    Accepts: language, audio_format, audio_base64
+    Detect if voice is AI-generated or human.
+    
+    Accepts either:
+    - audio_url: Public URL to audio file (MP3, WAV, etc.)
+    - audio_base64: Base64 encoded audio
+    
+    Returns JSON with prediction, confidence, and explainability.
+    Always returns JSON, even on errors.
     """
     start_time = datetime.utcnow()
     
-    # 0. Verify API key
+    # Verify API key
     if x_api_key != API_KEY:
         return {"error": "Invalid API Key"}
     
     try:
-        # 1. Decode Base64 Audio
-        if not req.audio_base64:
-            return {"error": "audio_base64 is required"}
-            
-        try:
-            audio_bytes = base64.b64decode(req.audio_base64)
-        except Exception:
-            return {"error": "Invalid Base64 encoding"}
+        # 1. Get Audio Bytes
+        audio_bytes = None
+        
+        if req.audio_url:
+            # Download from URL
+            try:
+                audio_bytes = download_audio_from_url(req.audio_url)
+            except HTTPException as e:
+                return {"error": e.detail}
+            except Exception as e:
+                return {"error": f"Failed to download audio: {str(e)}"}
+        
+        elif req.audio_base64:
+            # Decode from base64
+            try:
+                audio_bytes = base64.b64decode(req.audio_base64)
+            except Exception as e:
+                return {"error": "Invalid Base64 encoding"}
+        
+        else:
+            return {"error": "Either audio_url or audio_base64 must be provided"}
         
         # Validate audio size
-        if len(audio_bytes) < 1000:
-            return {"error": "Audio too short (less than 1KB)"}
+        if not audio_bytes or len(audio_bytes) < 1000:
+            return {"error": "Audio too short or empty"}
         
         # 2. Load and Preprocess Audio
         try:
