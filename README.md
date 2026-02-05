@@ -74,4 +74,4 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8100/detect-voice" `
 
 
 ---
-*Built for the 2-Hour Winning Strategy challenge.*
+
