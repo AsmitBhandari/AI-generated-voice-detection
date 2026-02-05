@@ -10,14 +10,17 @@ data/
 output/
 dataset/
 
-# Exclude checkpoint models (save space, keep only production)
+# Exclude checkpoint models
 models/checkpoints/
+
+# Exclude all generic model files EXCEPT the production one
 models/*.pth
 models/*.bin
 models/*.safetensors
 
-# BUT ensure the production directory is included
-# (This is handled by the above rules, as models/production/ is not explicitly excluded)
+# BUT ensure the specific production directory is kept
+!models/production/
+!models/production/**
 
 # Other local files
 .DS_Store
@@ -27,5 +30,3 @@ TRAINING.md
 walkthrough.md
 implementation_plan.md
 task.md
-scripts/download_indian_test_manual.py
-scripts/inspect_tar.py
