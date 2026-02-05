@@ -6,7 +6,7 @@ import numpy as np
 class ModelWrapper:
     def __init__(self, model_path=None):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model_version = "v1.0.0-wav2vec2"
+        self.model_version = "v1.1.0-multilingual"
         
         if model_path:
             self.load(model_path)
