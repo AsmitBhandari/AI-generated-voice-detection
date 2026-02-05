@@ -16,7 +16,13 @@ def load_and_convert(path_or_bytes):
     Returns: Tensor (1, T)
     """
     try:
-        waveform, sr = torchaudio.load(path_or_bytes)
+        # Use librosa to bypass torchaudio backend issues completely
+        import librosa
+        import torch
+        y, sr = librosa.load(path_or_bytes, sr=None)
+        waveform = torch.from_numpy(y).float()
+        if waveform.dim() == 1:
+            waveform = waveform.unsqueeze(0) # Ensure (1, T)
     except Exception as e:
         logger.error(f"Failed to load {path_or_bytes}: {e}")
         return None

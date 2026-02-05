@@ -139,7 +139,9 @@ def run_pipeline(raw_root, output_root):
                             processed_wav, status = process_single_file(fpath)
                             
                             if processed_wav is not None:
-                                torchaudio.save(save_path, processed_wav, CONFIG["sample_rate"])
+                                import soundfile as sf
+                                # Convert (1, T) to (T,) numpy array for soundfile
+                                sf.write(save_path, processed_wav.squeeze().numpy(), CONFIG["sample_rate"])
                                 stats["processed"] += 1
                             else:
                                 stats["discarded"] += 1

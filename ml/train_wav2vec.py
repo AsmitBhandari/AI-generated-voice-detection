@@ -13,26 +13,38 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from pathlib import Path
 
 # 1. Setup Data
-real_dir = Path("data/real")
-fake_dir = Path("data/fake")
+output_root = Path("output")
 
-# Collect paths and labels
-data = {"audio": [], "label": []}
+def load_split(split_name):
+    paths = []
+    labels = []
+    
+    # Structure: output/{split}/{class}/{lang}/file.wav
+    human_dir = output_root / split_name / "human"
+    ai_dir = output_root / split_name / "ai"
+    
+    # Recursively find all wav files (handles all languages)
+    if human_dir.exists():
+        for f in human_dir.rglob("*.wav"):
+            paths.append(str(f))
+            labels.append(0) # 0 = Human
+            
+    if ai_dir.exists():
+        for f in ai_dir.rglob("*.wav"):
+            paths.append(str(f))
+            labels.append(1) # 1 = AI
+            
+    return Dataset.from_dict({"audio": paths, "label": labels})
 
-for f in real_dir.glob("*.wav"):
-    data["audio"].append(str(f))
-    data["label"].append(0) # 0 = Human
+print("Loading datasets from 'output/' directory...")
+train_dataset = load_split("train")
+eval_dataset = load_split("val") # Pipeline provides 'val'
 
-for f in fake_dir.glob("*.wav"):
-    data["audio"].append(str(f))
-    data["label"].append(1) # 1 = AI
+print(f"Training samples: {len(train_dataset)}")
+print(f"Validation samples: {len(eval_dataset)}")
 
-dataset = Dataset.from_dict(data)
-
-# 2. Split Dataset
-dataset = dataset.train_test_split(test_size=0.1)
-train_dataset = dataset["train"]
-eval_dataset = dataset["test"]
+# 2. Split Dataset (ALREADY DONE BY PIPELINE)
+# We use the pipeline's splits directly to ensure no leakage across languages/speakers
 
 # 3. Initialize Model & Feature Extractor
 model_name = "facebook/wav2vec2-base"
@@ -105,7 +117,7 @@ print("Starting training...")
 trainer.train()
 
 # 10. Save Model
-output_path = Path("models/production/model_v1.0.0")
+output_path = Path("models/production/model_v1.1.0")
 output_path.mkdir(parents=True, exist_ok=True)
 model.save_pretrained(output_path)
 feature_extractor.save_pretrained(output_path)
